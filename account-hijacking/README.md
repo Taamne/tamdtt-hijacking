@@ -25,7 +25,7 @@ attacker  --HTTP-->  victim-web (Flask portal :8000, SQLite)
 
 ```bash
 cd ~/labtainer/labtainer-student
-imodule https://github.com/<user>/<repo>/raw/main/account-hijacking/imodule_web-attk-account-hijacking.tar
+imodule https://github.com/Taamne/tamdtt-hijacking/raw/main/account-hijacking/imodule_web-attk-account-hijacking.tar
 labtainer web-attk-account-hijacking
 ```
 
