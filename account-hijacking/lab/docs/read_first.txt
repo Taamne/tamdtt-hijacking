@@ -1,0 +1,24 @@
+Thực hành khai thác Account Hijacking
+========================================
+
+Mục đích:
+Hiểu cách credential bị lộ (file backup cũ còn sót trên portal)
+có thể dẫn đến việc chiếm quyền sử dụng tài khoản của nạn nhân.
+
+Kiến thức yêu cầu:
+- Linux cơ bản (curl, grep, cat)
+- HTTP cơ bản (truy cập URL, form login, cookie session)
+- username/password, web session cơ bản
+
+Môi trường:
+- attacker    : máy thực hành (terminal của bạn)
+- victim-web  : portal tại http://victim-web:8000
+
+Nhiệm vụ:
+1. Điều tra portal, tìm artifact (file backup cũ) làm lộ credential.
+2. Dùng credential đó đăng nhập vào victim-web với tài khoản victim.
+3. Truy cập trang profile riêng của victim, đọc private note.
+4. Chạy checkwork để chấm điểm tự động.
+
+Không cung cấp password, đường dẫn file hay flag trong tài liệu này --
+sinh viên phải tự điều tra.

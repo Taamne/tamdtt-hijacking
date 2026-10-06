@@ -1,0 +1,15 @@
+Account Hijacking -- practice terminal
+==========================================
+Target: http://victim-web:8000
+
+Tasks:
+1. Investigate. The portal is an old customer site and somewhere it
+   still exposes a stale backup/config/note that should have been
+   deleted. Look at what the site actually returns (including the
+   parts browsers do not display).
+2. Use what you find to log in to the portal as the victim user.
+3. Open the victim private profile page and read the private note.
+4. Run: checkwork
+
+Tools available: curl, grep, cat, find, python3.
+Hint: start with: curl -s http://victim-web:8000/ | head -n 30

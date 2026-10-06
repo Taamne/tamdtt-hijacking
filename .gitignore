@@ -1,0 +1,9 @@
+# Labtainer build artifacts (regenerated on build, never commit)
+*/home_tar/
+*/sys_tar/
+*.tar.gz
+config/*-home_tar.list
+__pycache__/
+*.pyc
+*.lab
+*.zip
