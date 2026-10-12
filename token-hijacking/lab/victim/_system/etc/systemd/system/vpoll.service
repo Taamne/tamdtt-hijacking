@@ -1,0 +1,13 @@
+[Unit]
+Description=Victim session keeper for Token Hijacking lab
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+ExecStart=/home/ubuntu/vpoll.sh
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

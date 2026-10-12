@@ -1,0 +1,19 @@
+Token Hijacking -- practice terminal
+==========================================
+Target: http://victim-portal:8000 (172.28.0.2)
+
+Background: the victim employee is logged in to the portal and keeps
+a live session. The portal developers forgot to remove a diagnostic
+endpoint. You do NOT know any password and do not need one.
+
+Tasks:
+1. Explore the portal. Find the forgotten diagnostic endpoint that
+   lists active sessions and read the victim session token.
+2. Replay the victim token (send it as your own auth cookie) to open
+   the victim private profile and read the private note.
+3. Run: checkwork
+
+Tools available: curl, grep, python3.
+Hint: start with: curl -s http://victim-portal:8000/ ; then think
+  about which paths developers often forget to remove.
+  Replay shape: curl -b "auth=<token>" http://victim-portal:8000/profile

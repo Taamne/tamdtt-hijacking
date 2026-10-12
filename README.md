@@ -6,7 +6,7 @@ Ba bài lab độc lập, mỗi bài chứng minh đúng một kỹ thuật:
 |---|---|---|
 | `account-hijacking/` | Account Hijacking | ✅ hoàn thành, đã test |
 | `email-hijacking/` | Email Hijacking | ✅ hoàn thành, đã test |
-| `token-hijacking/` | Token Hijacking | ⏳ chưa làm |
+| `token-hijacking/` | Token Hijacking | ✅ hoàn thành, đã test |
 
 ## Yêu cầu môi trường
 

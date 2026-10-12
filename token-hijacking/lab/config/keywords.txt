@@ -1,0 +1,4 @@
+token hijacking
+session replay
+bearer token
+debug endpoint

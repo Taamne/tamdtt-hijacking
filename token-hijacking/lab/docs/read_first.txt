@@ -1,0 +1,24 @@
+Thực hành khai thác Token Hijacking
+========================================
+
+Mục đích:
+Hiểu cách session token bị lộ (debug endpoint bị quên) cho phép kẻ
+tấn công mạo danh nạn nhân mà không cần biết password.
+
+Kiến thức yêu cầu:
+- Linux cơ bản (curl, grep)
+- HTTP cơ bản (cookie, JSON API đơn giản)
+- Khái niệm session/bearer token
+
+Môi trường:
+- attacker      : máy thực hành (terminal của bạn)
+- victim        : máy nhân viên, duy trì session sống (không cần đụng)
+- victim-portal : portal tại http://victim-portal:8000
+
+Nhiệm vụ:
+1. Tìm diagnostic endpoint bị quên và đọc session token của victim.
+2. Replay token đó để mở profile riêng của victim, đọc private note.
+3. Chạy checkwork để chấm điểm tự động.
+
+Không cung cấp password, đường dẫn debug hay flag trong tài liệu này --
+sinh viên phải tự khám phá.

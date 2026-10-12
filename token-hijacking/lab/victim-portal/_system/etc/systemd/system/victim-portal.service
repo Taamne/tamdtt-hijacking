@@ -1,0 +1,15 @@
+[Unit]
+Description=Victim token-auth portal (Flask) for Token Hijacking lab
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/webapp
+Environment=VICTIM_PORTAL_LOG=/var/log/victim-portal/portal.log
+ExecStart=/usr/bin/python3 /home/ubuntu/webapp/portal.py
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target
