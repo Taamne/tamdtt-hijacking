@@ -1,0 +1,1 @@
+Practice exploitation of Email Hijacking by sniffing a mailbox password from unencrypted legacy mail-check traffic.

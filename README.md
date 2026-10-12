@@ -5,7 +5,7 @@ Ba bài lab độc lập, mỗi bài chứng minh đúng một kỹ thuật:
 | Thư mục | Lab | Trạng thái |
 |---|---|---|
 | `account-hijacking/` | Account Hijacking | ✅ hoàn thành, đã test |
-| `email-hijacking/` | Email Hijacking | ⏳ chưa làm |
+| `email-hijacking/` | Email Hijacking | ✅ hoàn thành, đã test |
 | `token-hijacking/` | Token Hijacking | ⏳ chưa làm |
 
 ## Yêu cầu môi trường

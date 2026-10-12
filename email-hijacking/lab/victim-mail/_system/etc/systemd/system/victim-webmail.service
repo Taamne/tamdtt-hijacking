@@ -1,0 +1,15 @@
+[Unit]
+Description=Victim webmail portal (Flask) for Email Hijacking lab
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/webapp
+Environment=VICTIM_MAIL_LOG=/var/log/victim-mail/mail.log
+ExecStart=/usr/bin/python3 /home/ubuntu/webapp/mail.py
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

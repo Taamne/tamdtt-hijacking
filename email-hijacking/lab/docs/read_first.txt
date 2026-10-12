@@ -1,0 +1,28 @@
+Thực hành khai thác Email Hijacking
+========================================
+
+Mục đích:
+Hiểu cách giao thức truyền tin không mã hóa (dịch vụ check mail
+cũ) làm lộ mailbox password, dẫn đến chiếm quyền hộp thư của nạn nhân.
+
+Kiến thức yêu cầu:
+- Linux cơ bản (tcpdump, telnet, curl, grep)
+- Hiểu bắt gói tin cơ bản và giao thức plaintext
+- username/password, web session cơ bản
+
+Môi trường:
+- attacker    : máy thực hành (terminal của bạn)
+- victim      : máy nhân viên, tự động check mail định kỳ (không cần đụng)
+- victim-mail : webmail tại http://victim-mail:8000 và dịch vụ
+  legacy plaintext tại victim-mail:2323
+
+Nhiệm vụ:
+1. Sniff mạng, lấy mailbox password của victim, lưu output đọc được
+   vào /tmp/output.txt.
+2. Dùng password đó đăng nhập webmail với tài khoản victim.
+3. Đọc mail riêng (payroll token) của victim.
+4. Gửi 1 mail mạo danh victim.
+5. Chạy checkwork để chấm điểm tự động.
+
+Không cung cấp password hay flag trong tài liệu này --
+sinh viên phải tự sniff và phân tích.

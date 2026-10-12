@@ -1,0 +1,4 @@
+email hijacking
+plaintext sniffing
+tcpdump
+mailbox takeover
