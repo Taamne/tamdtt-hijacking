@@ -10,6 +10,7 @@ import logging
 import os
 import secrets
 import sqlite3
+import time
 
 from flask import Flask, redirect, request, session, url_for
 
@@ -54,6 +55,10 @@ def init_db():
         "CREATE TABLE IF NOT EXISTS mails("
         "id INTEGER PRIMARY KEY AUTOINCREMENT, owner TEXT, "
         "sender TEXT, subject TEXT, body TEXT)"
+    )
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS forwarding_rules("
+        "user TEXT PRIMARY KEY, target_address TEXT, created_at REAL)"
     )
     if fresh:
         flag = "EMAIL_HIJACK_SUCCESS_" + secrets.token_hex(3)
@@ -203,6 +208,56 @@ def send():
     event_log.info(
         "EMAIL_SENT id=%d from=%s to=%s src=%s", cur.lastrowid, user, to, src)
     return "<h1>Sent</h1><p>Mail id %d queued.</p>" % cur.lastrowid
+
+
+@app.route("/forward", methods=["POST"])
+def set_forward():
+    # Mail forwarding rule: silently copies the owner's incoming mail to
+    # an attacker-controlled address. The owner is ALWAYS taken from the
+    # session (never from the request body) so a caller cannot set a rule
+    # for somebody else. No real SMTP delivery exists in this lab; the
+    # graded event is the rule creation itself, persisted in SQLite so it
+    # survives logout/login (persistence of mailbox control).
+    user = current_user()
+    src = request.remote_addr
+    if not user:
+        return redirect(url_for("login_form"))
+    target = request.form.get("target", "").strip()
+    if not target:
+        return "<h1>Bad request</h1><p>Missing target address.</p>", 400
+    conn = get_db()
+    conn.execute(
+        "INSERT INTO forwarding_rules(user, target_address, created_at)"
+        " VALUES(?,?,?)"
+        " ON CONFLICT(user) DO UPDATE SET target_address=excluded.target_address,"
+        " created_at=excluded.created_at",
+        (user, target, time.time()),
+    )
+    conn.commit()
+    conn.close()
+    event_log.info(
+        "FORWARD_RULE_SET user=%s src=%s target=%s", user, src, target)
+    return ("<h1>Forwarding updated</h1>"
+            "<p>All mail for %s will be forwarded to %s.</p>"
+            % (user, target))
+
+
+@app.route("/settings/forwarding", methods=["GET"])
+def get_forward():
+    user = current_user()
+    src = request.remote_addr
+    if not user:
+        return redirect(url_for("login_form"))
+    conn = get_db()
+    row = conn.execute(
+        "SELECT target_address FROM forwarding_rules WHERE user=?", (user,)
+    ).fetchone()
+    conn.close()
+    target = row["target_address"] if row else "(none)"
+    event_log.info(
+        "FORWARD_RULE_VIEW user=%s src=%s status=200", user, src)
+    return ("<h1>Forwarding settings</h1>"
+            "<p>User: %s</p><p>Forward to: %s</p>" % (user, target))
 
 
 @app.route("/logout", methods=["POST"])

@@ -22,7 +22,10 @@ Nhiệm vụ:
 2. Dùng password đó đăng nhập webmail với tài khoản victim.
 3. Đọc mail riêng (payroll token) của victim.
 4. Gửi 1 mail mạo danh victim.
-5. Chạy checkwork để chấm điểm tự động.
+5. Thiết lập forwarding rule chuyển tiếp mail victim về địa chỉ do
+   bạn kiểm soát, rồi đọc lại xác nhận rule còn hiệu lực (duy trì
+   kiểm soát hộp thư).
+6. Chạy checkwork để chấm điểm tự động.
 
 Không cung cấp password hay flag trong tài liệu này --
 sinh viên phải tự sniff và phân tích.
