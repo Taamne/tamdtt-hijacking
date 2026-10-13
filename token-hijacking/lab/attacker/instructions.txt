@@ -1,6 +1,6 @@
 Token Hijacking -- practice terminal
 ==========================================
-Target: http://victim-portal:8000 (172.28.0.2)
+Target: http://victim-portal:8000 (172.26.0.2)
 
 Background: the victim employee is logged in to the portal and keeps
 a live session. The portal developers forgot to remove a diagnostic

@@ -14,8 +14,8 @@ tấn công mạo danh nạn nhân mà không cần biết password (replay toke
 ## Kiến trúc
 
 ```
-victim (172.28.0.4) ──giữ session sống──▶ victim-portal (172.28.0.2)
-attacker (172.28.0.3) ──đọc token + replay──▶ victim-portal
+victim (172.26.0.4) ──giữ session sống──▶ victim-portal (172.26.0.2)
+attacker (172.26.0.3) ──đọc token + replay──▶ victim-portal
 ```
 
 - `victim`: máy nhân viên, tự động duy trì session (không cần đụng)
