@@ -13,3 +13,7 @@ Tasks:
 
 Tools available: curl, grep, cat, find, python3.
 Hint: start with: curl -s http://victim-web:8000/ | head -n 30
+Note: the leaked password contains a '!' character. In bash, always
+wrap curl -d arguments in SINGLE quotes ('...'), e.g.
+curl -c /tmp/c.jar -d 'username=victim&password=<found-password>' .../login
+otherwise bash eats the ! character ("event not found").

