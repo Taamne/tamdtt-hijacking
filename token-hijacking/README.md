@@ -63,6 +63,15 @@ labtainer -r web-attk-token-hijacking  # làm lại từ đầu (token + flag m�
 stoplab web-attk-token-hijacking       # dừng lab
 ```
 
+> **Chuyển sang bài lab khác:** các lab dùng chung mạng lab nội bộ nên
+> KHÔNG chạy 2 lab cùng lúc. Dọn lab cũ trước khi mở lab mới:
+> ```bash
+> stoplab <tên-lab-cũ>
+> docker rm -f $(docker ps -aq --filter "name=web-attk-")
+> docker network rm lab_net   # bỏ qua lỗi "has active endpoints" nếu còn lab khác
+> labtainer <tên-lab-mới>
+> ```
+
 ## Nguồn lab
 
 Thư mục `lab/` chứa toàn bộ source Labtainer (`config/`,
