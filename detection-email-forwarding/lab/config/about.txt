@@ -1,0 +1,1 @@
+Practice detecting a rogue mailbox forwarding rule hidden among approved ones: inventory diff, triage, allowlist detection.

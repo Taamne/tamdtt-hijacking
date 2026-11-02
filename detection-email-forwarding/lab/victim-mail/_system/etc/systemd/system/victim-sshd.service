@@ -1,0 +1,13 @@
+[Unit]
+Description=SSH for SOC log pull on victim-mail (detection lab)
+After=network.target
+
+[Service]
+Type=simple
+ExecStartPre=-/bin/mkdir -p /run/sshd
+ExecStart=/usr/sbin/sshd -D
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

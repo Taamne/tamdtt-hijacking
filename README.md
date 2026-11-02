@@ -1,12 +1,14 @@
 # Đồ án tốt nghiệp — Các kỹ thuật Hijacking (Labtainer)
 
-Ba bài lab độc lập, mỗi bài chứng minh đúng một kỹ thuật:
+Ba bài lab tấn công độc lập, mỗi bài chứng minh đúng một kỹ thuật,
+cộng một bài lab phòng thủ (detection) dùng lại hạ tầng Email:
 
 | Thư mục | Lab | Trạng thái |
 |---|---|---|
 | `account-hijacking/` | Account Hijacking | ✅ hoàn thành, đã test |
 | `email-hijacking/` | Email Hijacking | ✅ hoàn thành, đã test |
 | `token-hijacking/` | Token Hijacking | ✅ hoàn thành, đã test |
+| `detection-email-forwarding/` | Phát hiện Forwarding độc (Detection) | ✅ hoàn thành, đã test |
 
 ## Yêu cầu môi trường
 

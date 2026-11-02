@@ -1,0 +1,28 @@
+Email Forwarding Detection -- SOC workstation
+==================================================
+Target mailbox lives on victim-mail (http://victim-mail:8000).
+The victim mailbox has MANY old forwarding rules; ONE of them is a
+rogue exfiltration rule planted by the attacker (threat emulator).
+
+Workflow:
+1. Pull the evidence (mail log + mailbox DB mirror):
+     ./detector/fetch_logs.sh
+2. Diff current rules against the approved inventory and spot the
+   unapproved one(s):
+     python3 detector/detect.py --diff
+3. Triage the suspect: check WHEN it was created (mail.log) and
+   whether its domain looks legitimate:
+     grep -a FORWARD_RULE_SET ~/collected/mail.log | tail
+     grep -a MAILBOX_LOGIN_SUCCESS ~/collected/mail.log | tail
+4. Fix detector/rules.json (see: python3 detector/detect.py --help),
+   then run detection:
+     python3 detector/detect.py --detect
+   Expected when fixed: exactly ONE alert on the rogue rule and
+   SUMMARY tp=1 fp=0 (no alert on the approved partner/internal rules).
+5. Run: checkwork
+
+Notes:
+- Starter rules only match known-bad IOCs (stale intel) and miss the
+  lookalike domain on purpose: your job is the allowlist fix.
+- /tmp/output.txt convention from the attack labs is NOT used here;
+  graded artifacts are alerts.log (server-log derived) + rules.json.

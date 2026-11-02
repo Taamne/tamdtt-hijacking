@@ -1,0 +1,29 @@
+Phát hiện Email Forwarding độc hại
+========================================
+
+Mục đích:
+Hiểu cách phát hiện rule chuyển tiếp mail độc hại ẩn trong hàng
+chục rule hợp lệ: đối chiếu inventory đã phê duyệt (baseline),
+triage nghi phạm bằng log đăng nhập + phân tích domain, và viết
+rule allowlist thay vì chạy theo IOC cũ.
+
+Kiến thức yêu cầu:
+- Linux cơ bản (scp, grep, sqlite3 khái niệm)
+- Đọc hiểu log server (timestamp, src IP)
+- Hiểu forwarding rule và domain
+
+Môi trường:
+- victim-mail  : portal + audit log tại http://victim-mail:8000
+- attacker      : máy mô phỏng kẻ tấn công (chạy simulate_breach.sh)
+- analyst       : trạm SOC của bạn (thu thập log, diff, detect)
+
+Nhiệm vụ:
+1. Chạy threat emulator trên attacker để tái hiện vụ chiếm hộp thư.
+2. Thu thập log + DB về analyst (fetch_logs.sh).
+3. Diff với inventory để tìm rule lạ (detect.py --diff).
+4. Triage: kiểm tra thời điểm tạo rule và login gần nhất.
+5. Sửa rules.json sang chế độ allowlist, chạy detect.py --detect.
+6. Chạy checkwork để chấm điểm tự động.
+
+Không đưa đáp án (rule độc, domain, cách sửa) trong tài liệu này --
+sinh viên phải tự điều tra và viết rule.

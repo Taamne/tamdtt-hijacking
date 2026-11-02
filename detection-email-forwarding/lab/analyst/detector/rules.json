@@ -1,0 +1,4 @@
+{
+  "mode": "exact_ioc",
+  "iocs": ["malicious.biz", "evil.example"]
+}

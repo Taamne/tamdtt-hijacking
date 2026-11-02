@@ -1,0 +1,9 @@
+Attacker box -- threat emulator lives here.
+==============================================
+Run this to replay the mailbox takeover + rogue forwarding rule
+(the "attacker" of this detection scenario):
+
+  ./simulate_breach.sh
+
+Then switch to the analyst container and hunt it down.
+Manual exploitation (curl) works too -- see the Email Hijacking lab.

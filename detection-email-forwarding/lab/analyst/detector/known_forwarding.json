@@ -1,0 +1,21 @@
+[
+  "archive@company.local",
+  "assistant@company.local",
+  "alerts@soc.company.local",
+  "hr-notify@company.local",
+  "payroll@company.local",
+  "team-leads@company.local",
+  "newsletter@company.local",
+  "backup-mx@company.local",
+  "spam-quarantine@company.local",
+  "crm-sync@company.local",
+  "invoices@company.local",
+  "travel-desk@company.local",
+  "it-helpdesk@company.local",
+  "legal-hold@company.local",
+  "exec-assistant@company.local",
+  "audit@partner-corp.com",
+  "reports@partner-corp.com",
+  "statements@vendor-pay.com",
+  "notices@vendor-pay.com"
+]
