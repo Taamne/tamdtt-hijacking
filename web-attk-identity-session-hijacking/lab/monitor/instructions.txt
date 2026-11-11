@@ -1,30 +1,61 @@
-Detection / correlation station (172.26.0.5)
-=============================================
-You have the audit log correlation demo. It pulls the portal's JSONL
-audit log and correlates the attack signals into one incident.
+Detection / SOC correlation station (172.26.0.5)
+=================================================
+This is the detection centrepiece of the demo. It reuses the teaching
+approach of web-detk-email-forwarding (approved inventory + allowlist)
+and adds account / mailbox / token correlation over the portal JSONL log.
 
-Run after the attacker has completed B2-B5:
+Recommended demo order:
+  1. Run the clean baseline first (before the attacker does B1-B5):
+       python3 detector/detect.py
+     Expected: incidents=0 alerts=0 -> false-positive count for a clean
+     baseline is 0.
 
-  python3 detector/detect.py
+  2. Let the attacker complete B1-B5, then run:
+       python3 detector/detect.py
+     Expected: one CRITICAL incident for user01 with account_hijack +
+     mailbox_hijack + token_hijack (plus session_not_revoked / recon).
 
-Defaults:
-  log source : http://victim-portal:8000/debug/audit
-  baseline IP: 172.26.0.4
-  output dir : /home/ubuntu/incident
+Other modes:
+  python3 detector/detect.py --diff
+      Current forwarding rules vs detector/known_forwarding.json.
+      The attacker rule user01 -> attacker@datn.local is UNAPPROVED;
+      the seeded user01 -> user01.archive@datn.local and
+      admin -> assistant@datn.local rules are approved.
 
-Output files:
-  ~/incident/timeline.csv           full event timeline
-  ~/incident/incident_summary.json  correlated incident(s)
+  python3 detector/detect.py --prevention
+      Writes prevention_report.json: which controls would block which
+      signal (MFA, revoke on password change, forwarding-rule alert,
+      remove debug endpoints) and whether hardened mode was observed.
 
-Useful options:
+Inputs:
+  audit log : http://victim-portal:8000/debug/audit
+  live rules: http://victim-portal:8000/debug/forwarding
+  baseline  : detector/known_forwarding.json
+  policy    : detector/rules.json  ({"mode": "allowlist"})
+
+Outputs:
+  ~/incident/timeline.csv
+  ~/incident/incident_summary.json   (incidents, risk score, metrics, IOC)
+  ~/incident/alerts.log              (JSONL, one alert per signal per user)
+  ~/incident/prevention_report.json  (--prevention only)
+
+Signals and weights:
+  account_hijack       30  login/action from non-baseline IP or User-Agent
+  mailbox_hijack       30  rule outside inventory / forwarded copy / mail read
+  token_hijack         35  JWT issued in one context, used in another
+  session_not_revoked  10  old token still accepted after password change
+  recon                 5  /debug/* fetched off-baseline (monitor IP ignored)
+
+Risk score = sum of present signal weights (capped at 100):
+  >=80 critical, >=55 high, >=30 medium, >0 low.
+
+Metrics in incident_summary.json:
+  alerts_true_positive, alerts_false_positive, incidents_total,
+  incident_linkage_accuracy, detection_lag_seconds,
+  attack_window_seconds, forwarding_rules_unapproved,
+  clean_baseline_false_positive_alerts.
+
+Offline options:
   python3 detector/detect.py --log-file /tmp/app.jsonl
-  python3 detector/detect.py --expected-ip 172.26.0.4
+  python3 detector/detect.py --rules-file /tmp/forwarding.json
   python3 detector/detect.py --out-dir /tmp/incident
-
-Signals:
-  account_hijack       login_success from a non-baseline source IP
-  mailbox_hijack       forwarding rule / forwarded mail / victim mail read
-                       from a non-baseline source IP
-  token_hijack         JWT issued from one IP, used from another
-  session_not_revoked  baseline password change, old token still accepted
-  recon                /debug/sessions or /debug/audit fetched off-baseline

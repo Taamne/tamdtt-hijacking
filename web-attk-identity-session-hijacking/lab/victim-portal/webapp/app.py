@@ -77,6 +77,13 @@ SEED_MAILS = [
      "Please review the portal audit log weekly."),
 ]
 
+# Approved forwarding rules (baseline inventory). The monitor compares the
+# live rules against this list; the attacker's B3 rule is the unapproved one.
+SEED_RULES = [
+    ("user01@datn.local", "user01.archive@datn.local"),
+    ("admin@datn.local", "assistant@datn.local"),
+]
+
 app = FastAPI(title="DATN Portal", docs_url=None, redoc_url=None)
 log_lock = threading.Lock()
 
@@ -201,6 +208,15 @@ def init_db():
                 "VALUES(?,?,?,?,?)",
                 [(owner, sender, subject, body, now_ts())
                  for owner, sender, subject, body in SEED_MAILS],
+            )
+        # Seed the approved baseline forwarding inventory. INSERT OR IGNORE
+        # keeps a rule that the demo already changed (e.g. after a redo of
+        # only the app) from being silently restored.
+        for user_id, target in SEED_RULES:
+            conn.execute(
+                "INSERT OR IGNORE INTO forwarding_rules(user_id, "
+                "target_address, created_at) VALUES(?,?,?)",
+                (user_id, target, now_ts()),
             )
         conn.commit()
     finally:
@@ -1155,6 +1171,38 @@ def debug_sessions(request: Request):
         "generated_at": utc_iso(),
         "counts": {"sessions": len(web_rows), "tokens": len(jwt_rows)},
         "sessions": out,
+    })
+
+
+@app.get("/debug/forwarding")
+def debug_forwarding(request: Request):
+    """Forgotten diagnostic endpoint: live forwarding-rule inventory.
+
+    The SOC correlation script uses this to diff the current rules against
+    the approved baseline. Like /debug/sessions, it should not exist in
+    production.
+    """
+    conn = db()
+    try:
+        rows = conn.execute(
+            "SELECT user_id, target_address, created_at FROM forwarding_rules "
+            "ORDER BY user_id"
+        ).fetchall()
+    finally:
+        conn.close()
+    rules = [{
+        "user_id": row["user_id"],
+        "target_address": row["target_address"],
+        "created_at": row["created_at"],
+    } for row in rows]
+    log_event(
+        request, "debug_forwarding_viewed", "audit", "high", "success",
+        extra={"rules": len(rules)},
+    )
+    return JSONResponse({
+        "service": SERVICE,
+        "generated_at": utc_iso(),
+        "rules": rules,
     })
 
 

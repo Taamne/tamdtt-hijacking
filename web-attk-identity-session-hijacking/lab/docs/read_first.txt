@@ -8,8 +8,10 @@ This lab is a self-contained DEMO of the DATN attack chain:
 
 There is no grading/checkwork. The attacker terminal is the main console;
 the victim-portal terminal is for reading the JSONL audit log; the victim
-terminal is used for the B5 password-change step; the monitor terminal runs
-the log correlation demo.
+terminal is used for the B5 password-change step; the monitor terminal is
+the Detection centrepiece (diff baseline/allowlist, correlation, risk score,
+timeline, IOC, alerts.log + metrics). Run the clean-baseline detector first
+to see zero false positives, then run the attack and the full correlation.
 
 Start with the attacker terminal and follow instructions.txt step by step.
 The portal UI is also available in Firefox (X11 forwarded to the host):

@@ -7,10 +7,30 @@ Monitor       : 172.26.0.5  (audit-log correlation)
 
 Goal: demonstrate the full chain in one run:
   B1 credential leak -> B2 account hijack -> B3 mailbox hijack
-  -> B4 JWT/token hijack -> B5 session persistence after password change.
+  -> B4 JWT/token hijack -> B5 session persistence after password change
+  -> Detection (the SOC centrepiece, in the monitor terminal).
 
 This is a DEMO lab: there is no checkwork/score. Evidence is what you see
 on the terminal plus the JSONL audit log lines.
+
+CƠ CHẾ & LỖ HỔNG BỊ KHAI THÁC (dùng cho báo cáo):
+  B1  Credential exposure: backup export còn plaintext password, không có
+      secret management/rotation. Credential hợp lệ = chìa khoá đầu tiên.
+  B2  Account Hijacking: xác thực chỉ dựa password -- thiếu MFA, không ràng
+      buộc thiết bị, không phát hiện login bất thường. Sau login, identity
+      bị giả mạo hoàn toàn; IP attacker .3 khác baseline victim .4.
+  B3  Email Hijacking (BEC persistence): forwarding rule cho phép đọc thư
+      tương lai mà không cần đăng nhập lại. Lỗ hổng: thao tác nhạy cảm với
+      mailbox không có xác minh lại/không cảnh báo rule mới.
+  B4  Token Hijacking: bearer JWT stateless, không ràng buộc IP/thiết bị;
+      /debug/sessions bị bỏ quên làm lộ raw token + jti. Ai giữ token là
+      user đó -- không cần password, không cần login.
+  B5  Session persistence: đổi mật khẩu ở baseline KHÔNG thu hồi session/
+      token cũ; token sống độc lập với credential. Đây là lỗ hổng sâu nhất
+      của chuỗi (hardened mode là bản so sánh có thu hồi).
+  Detection: không chỉ 3 alert rời; correlation account + mailbox + token
+      cùng user/jti/cửa sổ thời gian -> 1 incident, risk score, timeline,
+      IOC, metrics. Đây là phần chứng minh giá trị phòng thủ.
 
 ------------------------------------------------------------------
 B1 - Credential compromise
@@ -47,6 +67,10 @@ Expected audit lines (src_ip=172.26.0.3):
 ------------------------------------------------------------------
 B3 - Email / mailbox hijacking
 ------------------------------------------------------------------
+The mailbox starts with an approved baseline rule
+(user01 -> user01.archive@datn.local). Your rule below overwrites it;
+that is the diff the monitor will flag.
+
 With the hijacked session, install a forwarding rule and send a test
 message to the victim mailbox:
 
@@ -134,10 +158,21 @@ Detection (optional)
 ------------------------------------------------------------------
 In the MONITOR terminal (172.26.0.5):
 
-  python3 detector/detect.py
+  python3 detector/detect.py --diff     # current rules vs approved baseline
+  python3 detector/detect.py            # full correlation (default)
+  python3 detector/detect.py --prevention
 
-Outputs ~/incident/timeline.csv and ~/incident/incident_summary.json,
-correlating account + mailbox + token signals into one incident.
+Expected detection result: one CRITICAL incident for user01 with
+account_hijack + mailbox_hijack + token_hijack (risk score 100), plus
+session_not_revoked and recon. Outputs:
+
+  ~/incident/timeline.csv
+  ~/incident/incident_summary.json   (metrics + IOC + forwarding diff)
+  ~/incident/alerts.log              (JSONL alerts)
+  ~/incident/prevention_report.json  (--prevention)
+
+Clean-baseline check: run the detector BEFORE B1-B5; it must show
+incidents=0 and false-positive alerts=0.
 
 Tools: curl, jq, python3, firefox (GUI), tcpdump.
 Reset:  labtainer -r web-attk-identity-session-hijacking
