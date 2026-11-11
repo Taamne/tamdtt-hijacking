@@ -1,0 +1,16 @@
+DATN demo: Identity & Session Hijacking
+=======================================
+This lab is a self-contained DEMO of the DATN attack chain:
+
+  leaked credential -> account hijacking -> mailbox hijacking
+  -> JWT/token hijacking -> session persistence after a password change
+  -> audit-log detection
+
+There is no grading/checkwork. The attacker terminal is the main console;
+the victim-portal terminal is for reading the JSONL audit log; the victim
+terminal is used for the B5 password-change step; the monitor terminal runs
+the log correlation demo.
+
+Start with the attacker terminal and follow instructions.txt step by step.
+The portal UI is also available in Firefox (X11 forwarded to the host):
+  firefox http://172.26.0.2:8000 &

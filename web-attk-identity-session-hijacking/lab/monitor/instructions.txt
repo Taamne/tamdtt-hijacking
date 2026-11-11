@@ -1,0 +1,30 @@
+Detection / correlation station (172.26.0.5)
+=============================================
+You have the audit log correlation demo. It pulls the portal's JSONL
+audit log and correlates the attack signals into one incident.
+
+Run after the attacker has completed B2-B5:
+
+  python3 detector/detect.py
+
+Defaults:
+  log source : http://victim-portal:8000/debug/audit
+  baseline IP: 172.26.0.4
+  output dir : /home/ubuntu/incident
+
+Output files:
+  ~/incident/timeline.csv           full event timeline
+  ~/incident/incident_summary.json  correlated incident(s)
+
+Useful options:
+  python3 detector/detect.py --log-file /tmp/app.jsonl
+  python3 detector/detect.py --expected-ip 172.26.0.4
+  python3 detector/detect.py --out-dir /tmp/incident
+
+Signals:
+  account_hijack       login_success from a non-baseline source IP
+  mailbox_hijack       forwarding rule / forwarded mail / victim mail read
+                       from a non-baseline source IP
+  token_hijack         JWT issued from one IP, used from another
+  session_not_revoked  baseline password change, old token still accepted
+  recon                /debug/sessions or /debug/audit fetched off-baseline

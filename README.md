@@ -9,6 +9,7 @@ cộng một bài lab phòng thủ (detection) dùng lại hạ tầng Email:
 | `email-hijacking/` | Email Hijacking | ✅ hoàn thành, đã test |
 | `token-hijacking/` | Token Hijacking | ✅ hoàn thành, đã test |
 | `detection-email-forwarding/` | Phát hiện Forwarding độc (Detection) | ✅ hoàn thành, đã test |
+| `web-attk-identity-session-hijacking/` | **DEMO tổng hợp** chuỗi Identity & Session Hijacking (không chấm điểm) | ✅ demo chạy được, đã test clean pull |
 
 ## Yêu cầu môi trường
 

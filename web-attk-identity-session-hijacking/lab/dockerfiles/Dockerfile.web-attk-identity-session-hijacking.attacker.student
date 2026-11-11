@@ -1,0 +1,51 @@
+#
+# Labtainer Dockerfile - attacker workstation
+#
+ARG registry
+FROM $registry/labtainer.network2
+
+ARG lab
+ARG labdir
+ARG imagedir
+ARG user_name
+ARG password
+ARG apt_source
+ARG version
+LABEL version=$version
+ENV APT_SOURCE $apt_source
+RUN /usr/bin/apt-source.sh
+#
+# Firefox + X11 libraries for the GUI demo, plus curl/jq/python3 for the
+# terminal steps. The base network image already provides tcpdump.
+#
+RUN sed -i '/canonical/d' /etc/apt/sources.list /etc/apt/sources.list.d/* 2>/dev/null; \
+    apt-get update && apt-get install -y --no-install-recommends \
+        curl jq python3 procps firefox dbus-x11 fonts-dejavu-core \
+        libgl1 libegl1 libpci3 \
+    && rm -rf /var/lib/apt/lists/*
+ENV MOZ_CRASHREPORTER_DISABLE=1
+ENV MOZ_DISABLE_CONTENT_SANDBOX=1
+#
+# Labtainer terminals run as root with HOME=/home/ubuntu (the image ENV).
+# Firefox refuses to start in that state. This wrapper keeps HOME=/root for
+# root, so the documented "firefox http://..." command works unchanged.
+#
+RUN printf '#!/bin/sh\nif [ "$(id -u)" = "0" ]; then export HOME=/root; fi\nexec /usr/bin/firefox "$@"\n' \
+        > /usr/local/bin/firefox && chmod +x /usr/local/bin/firefox
+#
+# Install the system files found in the _system directory
+#
+ADD $labdir/sys_$lab.tar.gz /
+#
+RUN useradd -ms /bin/bash $user_name
+RUN echo "$user_name:$password" | chpasswd
+RUN adduser $user_name sudo
+#
+USER $user_name
+ENV HOME /home/$user_name
+#
+RUN rm -f $HOME/home.tar
+ADD $labdir/$lab.tar.gz $HOME
+#
+USER root
+CMD ["/bin/bash", "-c", "exec /sbin/init --log-target=journal 3>&1"]

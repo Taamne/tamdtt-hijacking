@@ -1,0 +1,25 @@
+Victim workstation (172.26.0.4)
+================================
+This container plays the legitimate employee user01. The systemd service
+datn-baseline.service automatically:
+
+  * logs in to http://victim-portal:8000 as user01@datn.local,
+  * opens the profile and mailbox,
+  * requests a JWT and polls /api/me with it.
+
+That creates the clean baseline traffic from 172.26.0.4 and keeps a live
+victim token available for the token-hijacking step.
+
+Useful commands:
+  systemctl status datn-baseline
+  cat ~/victim.jwt
+  tail -n 10 ~/victim.jar
+
+DEMO STEP B5 -- change the victim password:
+  cd /home/ubuntu
+  ./change_password_baseline.sh            # baseline: old sessions/tokens survive
+  ./change_password_baseline.sh hardened   # hardened: revoke everything
+
+Run the password change only after the baseline login has completed
+(about 10-20 seconds after the lab starts). After B5, go back to the
+attacker terminal and replay the previously captured JWT.

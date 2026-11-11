@@ -1,0 +1,44 @@
+#
+# Labtainer Dockerfile - DATN Portal (FastAPI + SQLite + JSONL audit)
+#
+ARG registry
+FROM $registry/labtainer.network2
+
+ARG lab
+ARG labdir
+ARG imagedir
+ARG user_name
+ARG password
+ARG apt_source
+ARG version
+LABEL version=$version
+ENV APT_SOURCE $apt_source
+RUN /usr/bin/apt-source.sh
+#
+RUN sed -i '/canonical/d' /etc/apt/sources.list /etc/apt/sources.list.d/* 2>/dev/null; \
+    apt-get update && apt-get install -y --no-install-recommends \
+        python3 python3-pip sqlite3 curl jq procps \
+    && rm -rf /var/lib/apt/lists/*
+#
+# FastAPI 0.95.x is the last line that installs cleanly on the Python 3.8
+# runtime shipped with the Ubuntu 20.04 Labtainer base image.
+#
+RUN pip3 install --no-cache-dir "fastapi==0.95.2" "uvicorn==0.22.0"
+#
+# Install the system files found in the _system directory
+#
+ADD $labdir/sys_$lab.tar.gz /
+#
+RUN useradd -ms /bin/bash $user_name
+RUN echo "$user_name:$password" | chpasswd
+RUN adduser $user_name sudo
+RUN mkdir -p /var/log/datn && chown $user_name:$user_name /var/log/datn
+#
+USER $user_name
+ENV HOME /home/$user_name
+#
+RUN rm -f $HOME/home.tar
+ADD $labdir/$lab.tar.gz $HOME
+#
+USER root
+CMD ["/bin/bash", "-c", "exec /sbin/init --log-target=journal 3>&1"]

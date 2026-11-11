@@ -1,0 +1,18 @@
+[Unit]
+Description=DATN Portal (FastAPI) for the identity/session hijacking demo
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/webapp
+Environment=DATN_LOG=/var/log/datn/app.jsonl
+Environment=DATN_DB=/home/ubuntu/webapp/datn.db
+Environment=DATN_JWT_SECRET=datn-lab-demo-secret-v1
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/usr/bin/python3 -m uvicorn app:app --host 0.0.0.0 --port 8000 --log-level warning
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

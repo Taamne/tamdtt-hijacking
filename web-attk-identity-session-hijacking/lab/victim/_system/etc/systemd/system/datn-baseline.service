@@ -1,0 +1,13 @@
+[Unit]
+Description=DATN victim baseline traffic (valid user01 login + API polling)
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+ExecStart=/home/ubuntu/baseline.sh
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
